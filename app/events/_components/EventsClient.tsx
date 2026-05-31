@@ -12,7 +12,8 @@ const CATEGORY_COLOR: Record<string, string> = {
   etc:         'bg-gray-100 text-gray-600',
 }
 
-function formatDateRange(startAt: string, endAt: string | null) {
+function formatDateRange(startAt: string | null, endAt: string | null) {
+  if (!startAt) return ''
   const fmt = (d: Date) =>
     d.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
   const start = fmt(new Date(startAt))

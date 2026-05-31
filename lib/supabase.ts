@@ -12,19 +12,23 @@ export type Event = {
   id: string
   title: string
   category_id: string | null
-  start_at: string
+  start_at: string | null
   end_at: string | null
   venue: string | null
   address: string | null
   price: number | null
   is_free: boolean
+  is_featured: boolean
   image_url: string | null
   link_url: string | null
+  source: string | null
+  source_id: string | null
   created_at: string
   updated_at: string
-  // JOIN 시 선택적으로 포함
   categories?: Category
 }
+
+export type EventWithHeartCount = Event & { heart_count: number }
 
 export type Heart = {
   id: string
