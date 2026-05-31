@@ -7,9 +7,13 @@ export default async function EventsPage() {
     .order('start_at', { ascending: true })
 
   if (error) {
+    console.error('[events] Supabase 에러:', error)
     return (
       <main className="max-w-4xl mx-auto px-4 py-12">
         <p className="text-red-500">행사 목록을 불러오는 데 실패했습니다.</p>
+        <pre className="mt-2 text-xs text-red-400 whitespace-pre-wrap">
+          {JSON.stringify(error, null, 2)}
+        </pre>
       </main>
     )
   }
