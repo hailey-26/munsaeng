@@ -13,6 +13,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { config } from 'dotenv'
 import { resolve } from 'path'
+import { XMLParser } from 'fast-xml-parser'
+
+const xmlParser = new XMLParser({ isArray: (name) => name === 'item' })
 
 config({ path: resolve(process.cwd(), '.env.local') })
 
@@ -73,14 +76,17 @@ async function fetchPage(apiUrl: string, pageNo: number): Promise<PageResult> {
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
 
   const text = await res.text()
+
+  let body: { items?: unknown; totalCount?: number }
   if (text.trimStart().startsWith('<')) {
-    throw new Error(`API가 XML 에러 반환 (키 확인 필요):\n${text.slice(0, 500)}`)
+    const parsed = xmlParser.parse(text)
+    body = parsed?.response?.body
+    if (!body) throw new Error(`XML 파싱 실패:\n${text.slice(0, 300)}`)
+  } else {
+    const json = JSON.parse(text)
+    body = json?.response?.body ?? json?.[Object.keys(json)[0]]?.body ?? json?.body
   }
 
-  const json = JSON.parse(text)
-  const body = json?.response?.body ?? json?.[Object.keys(json)[0]]?.body ?? json?.body
-
-  if (!body) throw new Error(`응답 파싱 실패: ${JSON.stringify(json).slice(0, 200)}`)
 
   const totalCount = Number(body.totalCount ?? 0)
   const raw = body.items
