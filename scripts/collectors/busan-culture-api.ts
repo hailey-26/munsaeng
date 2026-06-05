@@ -72,7 +72,12 @@ async function fetchPage(apiUrl: string, pageNo: number): Promise<PageResult> {
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
 
-  const json = await res.json()
+  const text = await res.text()
+  if (text.trimStart().startsWith('<')) {
+    throw new Error(`API가 XML 에러 반환 (키 확인 필요):\n${text.slice(0, 500)}`)
+  }
+
+  const json = JSON.parse(text)
   const body = json?.response?.body ?? json?.[Object.keys(json)[0]]?.body ?? json?.body
 
   if (!body) throw new Error(`응답 파싱 실패: ${JSON.stringify(json).slice(0, 200)}`)
